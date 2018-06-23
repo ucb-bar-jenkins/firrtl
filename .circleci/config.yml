@@ -4,15 +4,12 @@
 #
 version: 2
 jobs:
-  build:
+  build-prep:
     docker:
-      # specify the version you desire here
-      - image: circleci/openjdk:8-jdk
-      
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      # - image: circleci/postgres:9.4
+      - image: ucbjrl/chisel3-tools
+        user: "chisel"
+    
+  build:
 
     working_directory: ~/repo
 
@@ -22,6 +19,7 @@ jobs:
       TERM: dumb
     
     steps:
+      # Download and cache dependencies            
       - checkout
 
       # Download and cache dependencies
@@ -36,6 +34,8 @@ jobs:
       - save_cache:
           paths:
             - ~/.m2
+            - ~/.ivy2/cache
+            - ~/.sbt
           key: v1-dependencies--{{ checksum "build.sbt" }}
 
         
