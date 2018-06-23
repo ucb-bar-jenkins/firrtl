@@ -3,14 +3,13 @@
 # Check https://circleci.com/docs/2.0/sample-config/ for more details
 #
 version: 2
+
 jobs:
   build-prep:
     docker:
       - image: ucbjrl/chisel3-tools
         user: "chisel"
     
-  build:
-
     working_directory: ~/repo
 
     environment:
