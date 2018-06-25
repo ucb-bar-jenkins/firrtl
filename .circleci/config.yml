@@ -7,7 +7,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: ucbjrl/chisel3-tools
+      - image: ucbbar/chisel3-tools
         user: "chisel"
     
     working_directory: ~/repo
