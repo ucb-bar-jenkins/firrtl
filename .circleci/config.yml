@@ -16,7 +16,9 @@ jobs:
       # Customize the JVM maximum heap limit
       JVM_OPTS: -Xmx3200m
       TERM: dumb
-    
+      RUN_CHISEL_TESTS=false
+      RUN_FORMAL_CHECKS=false
+
     steps:
       # Download and cache dependencies            
       - checkout
@@ -28,8 +30,6 @@ jobs:
           # fallback to using the latest cache if no exact match is found
           - v1-dependencies-
 
-      - run: printenv
-      
       - run: cat /dev/null | sbt test:compile
 
       - save_cache:
@@ -46,3 +46,18 @@ jobs:
       - run:
           command: |
             cat /dev/null | sbt test:test
+      
+      # run regressions (chisel tests with default versions)
+      - run:
+          command: |
+            verilator --version
+            bash .circleci/run_chisel_tests.sh
+      
+      # run regressions (formal tests with default versions)
+      - run: yosys -V
+
+      - run: bash .circleci/run_formal_checks.sh RocketCore
+
+      - run: bash .circleci/run_formal_checks.sh FPU
+
+      - run: bash .circleci/run_formal_checks.sh ICache
