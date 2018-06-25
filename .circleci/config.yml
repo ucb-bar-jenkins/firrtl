@@ -39,4 +39,6 @@ jobs:
 
         
       # run tests!
-      - run: cat /dev/null | sbt test:test
+      - run:
+          command: |
+            PATH="/opt/verilator/verilator_3_922/bin:$PATH" cat /dev/null | sbt test:test
