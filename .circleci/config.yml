@@ -37,8 +37,10 @@ jobs:
             - ~/.sbt
           key: v1-dependencies--{{ checksum "build.sbt" }}
 
-        
+      # Set environment
+      - run: echo 'export PATH="/opt/verilator/verilator_3_922/bin:/opt/yosys/bin:$PATH" >> $BASH_ENV
+      
       # run tests!
       - run:
           command: |
-            PATH="/opt/verilator/verilator_3_922/bin:$PATH" cat /dev/null | sbt test:test
+            cat /dev/null | sbt test:test
