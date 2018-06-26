@@ -1,48 +1,59 @@
 #!/usr/bin/env bash
 # This script is for formally comparing the Verilog emitted by different git revisions
 # There must be two valid git revision arguments
-set -e
+set -exv
 
-if [ $# -ne 3 ]; then
-    echo "There must be exactly three arguments!"
+if [ $# -lt 3 ]; then
+    echo "There must be at least three arguments!"
     exit -1
 fi
 
 HASH1=`git rev-parse $1`
 HASH2=`git rev-parse $2`
+shift
+shift
 
-DUT=$3
+DUTS=$@
 
-echo "Comparing git revisions $HASH1 and $HASH2 on $DUT"
+fail=false
+for DUT in $DUTS; do
+  rf=regress/$DUT.fir
+  if [ -r $rf -a -s $rf ] ; then : ; else echo "$rf does not exist"; fail=true; fi
+done
+
+if $fail ; then exit 1; fi
+
+echo "Comparing git revisions $HASH1 and $HASH2 on $DUTS"
 
 if [ $HASH1 = $HASH2 ]; then
     echo "Both git revisions are the same! Nothing to do!"
     exit 0
 fi
 
-RET=""
 make_verilog () {
     git checkout $1
-    local filename="$DUT.$1.v"
-
+    shift
     sbt clean
-    sbt "runMain firrtl.Driver -i $DUT.fir -o $filename -X verilog"
-    RET=$filename
+    for dut in $@; do
+      local filename="$dut.$1.v"
+
+      sbt "runMain firrtl.Driver -i regress/$dut.fir -o $filename -X verilog"
+    done
 }
 
 # Generate Verilog to compare
-make_verilog $HASH1
-FILE1=$RET
+make_verilog $HASH1 $DUTS
 
-make_verilog $HASH2
-FILE2=$RET
+make_verilog $HASH2 $DUTS
 
-echo "Comparing $FILE1 and $FILE2"
+for DUT in $DUTS; do
+  FILE1="$DUT.$HASH1.v"
+  FILE2="$DUT.$HASH2.v"
+  echo "Comparing $FILE1 and $FILE2"
 
-if cmp -s $FILE1 $FILE2; then
+  if cmp -s $FILE1 $FILE2; then
     echo "File contents are identical!"
-    exit 0
-else
+  else
     echo "Running equivalence check using Yosys"
     yosys -q -p "
       read_verilog $FILE1
@@ -65,4 +76,5 @@ else
       equiv_induct
       equiv_status -assert
     "
-fi
+  fi
+done

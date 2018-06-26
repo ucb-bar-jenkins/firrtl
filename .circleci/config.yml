@@ -83,7 +83,5 @@ jobs:
           command: |
             if $RUN_FORMAL_CHECKS ; then
               yosys -V
-              bash -xv .circleci/run_formal_checks.sh RocketCore
-              bash .circleci/run_formal_checks.sh FPU
-              bash .circleci/run_formal_checks.sh ICache
+              bash .circleci/run_formal_checks.sh RocketCore FPU ICache
             fi

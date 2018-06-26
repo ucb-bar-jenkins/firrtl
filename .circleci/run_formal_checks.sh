@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-set -e
+set -exv
 
-if [ $# -ne 1 ]; then
-    echo "There must be exactly one argument!"
+if [ $# -lt 1 ]; then
+    echo "There must be at least one argument!"
     exit -1
 fi
 
-DUT=$1
+DUTS=$@
 
 # Extract the x...y part of "The GitHub or Bitbucket URL to compare commits of a build."
 COMMIT_RANGE=`basename $CIRCLE_COMPARE_URL`
@@ -24,8 +24,14 @@ else
   #  of the pull request.
   # For the purposes of regression testing, it seems we lose nothing by
   #  testing against master.
-  REGRESSION_BRANCH=master
-  git fetch origin $REGRESSION_BRANCH
-  cp regress/$DUT.fir $DUT.fir
-  bash -xv ./scripts/formal_equiv.sh $CIRCLE_BRANCH origin/$REGRESSION_BRANCH $DUT
+#  REGRESSION_BRANCH=master
+  if [ -n "$REGRESSION_BRANCH" ]; then
+    NEW=$CIRCLE_BRANCH
+    OLD=origin/$REGRESSION_BRANCH 
+    git fetch origin $REGRESSION_BRANCH
+  else
+    # If we don't have an explicit regression branch, use the compare commits.
+    eval `echo $COMMIT_RANGE | gawk -F'\\\.\\\.\\\.' '{print "OLD="$1, "NEW="$2}'`
+  fi
+  bash ./scripts/formal_equiv.sh $NEW $OLD $DUTS
 fi
