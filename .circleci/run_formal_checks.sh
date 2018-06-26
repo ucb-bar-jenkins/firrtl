@@ -25,7 +25,7 @@ else
   #  of the pull request.
   # For the purposes of regression testing, it seems we lose nothing by
   #  testing against master.
-#  REGRESSION_BRANCH=master
+  REGRESSION_BRANCH=master
   if [ -n "$REGRESSION_BRANCH" ]; then
     NEW=$CIRCLE_BRANCH
     OLD=origin/$REGRESSION_BRANCH 
