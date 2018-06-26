@@ -33,12 +33,13 @@ fi
 # The next is tricky. We want to checkout another revision,
 #  without updating the regression tests or the scripts we're executing.
 # We assume they should be provided by the revision we're trying to verify.
-git config core.sparseCheckout true
-cat <<EOF > .git/info/sparse-checkout
-/*
-!scripts
-!regress
-!.circleci
+if [ -r .gitignore ] ; then
+  cp -p .gitignore .gitignore.save
+fi
+cat <<EOF >> .gitignore
+scripts
+regress
+.circleci
 EOF
 
 make_verilog () {
