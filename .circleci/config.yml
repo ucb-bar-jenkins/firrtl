@@ -20,6 +20,20 @@ jobs:
       RUN_FORMAL_CHECKS: true
 
     steps:
+      # Check test configuration
+      - run:
+          command: |
+            if $RUN_CHISEL_TESTS ; then
+              echo will run chisel tests
+            else
+              echo will NOT run chisel tests
+            fi
+            if $RUN_FORMAL_CHECKS ; then
+              echo will run formal checks
+            else
+              echo will NOT run formal checks
+            fi
+
       # Download and cache dependencies            
       - checkout
 
@@ -50,14 +64,17 @@ jobs:
       # run regressions (chisel tests with default versions)
       - run:
           command: |
-            verilator --version
-            bash .circleci/run_chisel_tests.sh
-      
+            if $RUN_CHISEL_TESTS ; then
+              verilator --version
+              bash .circleci/run_chisel_tests.sh
+            fi
+
       # run regressions (formal tests with default versions)
-      - run: yosys -V
-
-      - run: bash .circleci/run_formal_checks.sh RocketCore
-
-      - run: bash .circleci/run_formal_checks.sh FPU
-
-      - run: bash .circleci/run_formal_checks.sh ICache
+      - run:
+          command: |
+            if $RUN_FORMAL_CHECKS ; then
+              yosys -V
+              bash .circleci/run_formal_checks.sh RocketCore
+              bash .circleci/run_formal_checks.sh FPU
+              bash .circleci/run_formal_checks.sh ICache
+            fi
