@@ -31,11 +31,12 @@ if [ $HASH1 = $HASH2 ]; then
 fi
 
 make_verilog () {
-    git checkout $1
+    local HASH=$1
+    git checkout $HASH
     shift
     sbt clean
     for dut in $@; do
-      local filename="$dut.$1.v"
+      local filename="$dut.$HASH.v"
 
       sbt "runMain firrtl.Driver -i regress/$dut.fir -o $filename -X verilog"
     done
