@@ -13,6 +13,7 @@ if [ $CIRCLE_PULL_REQUEST = "" ]; then
   echo "Not a pull request, no formal check"
   exit 0
 # Extract the x...y part of "The GitHub or Bitbucket URL to compare commits of a build."
+printenv
 COMMIT_RANGE=`basename $CIRCLE_COMPARE_URL`
 # Skip chisel tests if the commit message says to
 elif git log --format=%B --no-merges $COMMIT_RANGE | grep '\[skip formal checks\]'; then

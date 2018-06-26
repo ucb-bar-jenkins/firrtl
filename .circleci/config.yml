@@ -24,6 +24,7 @@ jobs:
       # Check test configuration
       - run:
           command: |
+            printenv
             if $RUN_FIRRTL_TESTS ; then
               echo will run firrtl tests
             else
