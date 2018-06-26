@@ -34,5 +34,5 @@ else
     # If we don't have an explicit regression branch, use the compare commits.
     eval `echo $COMMIT_RANGE | gawk -F'\\\.\\\.' '{print "OLD="$1, "NEW="$2}'`
   fi
-  bash ./scripts/formal_equiv.sh $NEW $OLD $DUTS
+  bash ./.circleci/formal_equiv.sh $NEW $OLD $DUTS
 fi
