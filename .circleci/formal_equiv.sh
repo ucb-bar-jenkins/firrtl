@@ -30,6 +30,17 @@ if [ $HASH1 = $HASH2 ]; then
     exit 0
 fi
 
+# The next is tricky. We want to checkout another revision,
+#  without updating the regression tests or the scripts we're executing.
+# We assume they should be provided by the revision we're trying to verify.
+git config core.sparseCheckout true
+echo -e <<EOF > .git/info/sparse-checkout
+/*
+!scripts
+!regress
+!.circleci
+EOF
+
 make_verilog () {
     local HASH=$1
     git checkout $HASH
