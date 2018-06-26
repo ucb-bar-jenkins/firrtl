@@ -1,6 +1,7 @@
 set -e
-# Extract the x...y part of "The GitHub or Bitbucket URL to compare commits of a build."
-COMMIT_RANGE=`basename $CIRCLE_COMPARE_URL`
+# Extract the x...y part of "The GitHub or Bitbucket URL to compare commits of a build.",
+#  and convert it to two-dot range notation.
+COMMIT_RANGE=`basename $CIRCLE_COMPARE_URL | sed -e 's/\.\.\./../'`
 # Skip chisel tests if the commit message says to
 if git log --format=%B --no-merges $COMMIT_RANGE | grep '\[skip chisel tests\]'; then
   exit 0

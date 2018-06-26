@@ -8,8 +8,9 @@ fi
 
 DUTS=$@
 
-# Extract the x...y part of "The GitHub or Bitbucket URL to compare commits of a build."
-COMMIT_RANGE=`basename $CIRCLE_COMPARE_URL`
+# Extract the x...y part of "The GitHub or Bitbucket URL to compare commits of a build.",
+#  and convert it to two-dot range notation.
+COMMIT_RANGE=`basename $CIRCLE_COMPARE_URL | sed -e 's/\.\.\./../'`
 
 # Run formal check only for PRs
 if [ $CIRCLE_PULL_REQUEST = "" ]; then
@@ -31,7 +32,7 @@ else
     git fetch origin $REGRESSION_BRANCH
   else
     # If we don't have an explicit regression branch, use the compare commits.
-    eval `echo $COMMIT_RANGE | gawk -F'\\\.\\\.\\\.' '{print "OLD="$1, "NEW="$2}'`
+    eval `echo $COMMIT_RANGE | gawk -F'\\\.\\\.' '{print "OLD="$1, "NEW="$2}'`
   fi
   bash ./scripts/formal_equiv.sh $NEW $OLD $DUTS
 fi
