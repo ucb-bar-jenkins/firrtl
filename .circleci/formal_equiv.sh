@@ -34,7 +34,7 @@ fi
 #  without updating the regression tests or the scripts we're executing.
 # We assume they should be provided by the revision we're trying to verify.
 git config core.sparseCheckout true
-echo -e <<EOF > .git/info/sparse-checkout
+cat <<EOF > .git/info/sparse-checkout
 /*
 !scripts
 !regress
