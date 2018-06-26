@@ -23,5 +23,5 @@ else
   REGRESSION_BRANCH=master
   git fetch origin $REGRESSION_BRANCH
   cp regress/$DUT.fir $DUT.fir
-  ./scripts/formal_equiv.sh $CIRCLE_BRANCH $REGRESSION_BRANCH $DUT
+  ./scripts/formal_equiv.sh -xv $CIRCLE_BRANCH $REGRESSION_BRANCH $DUT
 fi
