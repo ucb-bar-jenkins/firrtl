@@ -15,14 +15,6 @@ shift
 
 DUTS=$@
 
-fail=false
-for DUT in $DUTS; do
-  rf=regress/$DUT.fir
-  if [ -r $rf -a -s $rf ] ; then : ; else echo "$rf does not exist"; fail=true; fi
-done
-
-if $fail ; then exit 1; fi
-
 echo "Comparing git revisions $HASH1 and $HASH2 on $DUTS"
 
 if [ $HASH1 = $HASH2 ]; then
@@ -46,7 +38,10 @@ make_verilog () {
     done
 }
 
+# Checkout and build a firrtl jar for the first hash
 make_firrtl $HASH1
+# Checkout and build a firrtl jar for the second hash, leaving that commit
+#  as the source for regression tests.
 make_firrtl $HASH2
 
 # Generate Verilog to compare
@@ -54,6 +49,7 @@ make_verilog $HASH1 $DUTS
 
 make_verilog $HASH2 $DUTS
 
+# Compare generated verilog
 for DUT in $DUTS; do
   FILE1="$DUT.$HASH1.v"
   FILE2="$DUT.$HASH2.v"
