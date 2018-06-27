@@ -2,10 +2,7 @@
 #
 # Check https://circleci.com/docs/2.0/sample-config/ for more details
 #
-version: 2
-
-jobs:
-  build:
+defaultImageUserWDEnv: &defaultImageUserWDEnv
     docker:
       - image: ucbbar/chisel3-tools
         user: "chisel"
@@ -17,9 +14,15 @@ jobs:
       JVM_OPTS: -Xmx3200m
       TERM: dumb
       RUN_FIRRTL_TESTS: true
-      RUN_CHISEL_TESTS: true
-      RUN_FORMAL_CHECKS: true
+      RUN_CHISEL_TESTS: false
+      RUN_FORMAL_CHECKS: false
       SBT_ARGS: "-Dsbt.log.noformat=true"
+
+version: 2
+
+jobs:
+  build:
+    <<: *defaultImageUserWDEnv
 
     steps:
       # Check test configuration
