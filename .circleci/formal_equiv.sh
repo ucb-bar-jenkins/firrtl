@@ -39,17 +39,25 @@ regress
 .circleci
 EOF
 
-make_verilog () {
+make_firrtl () {
     local HASH=$1
     git checkout $HASH
+    sbt clean assemble
+    mv utils/bin/firrtl.jar utils/bin/firrtl.$HASH.jar
+}
+
+make_verilog () {
+    local HASH=$1
     shift
     sbt clean
     for dut in $@; do
       local filename="$dut.$HASH.v"
-
-      sbt "runMain firrtl.Driver -i regress/$dut.fir -o $filename -X verilog"
+      java -jar utils/bin/firrtl.$HASH.jar -i regress/$dut.fir -o $filename -X verilog"
     done
 }
+
+make_firrtl $HASH1
+make_firrtl $HASH2
 
 # Generate Verilog to compare
 make_verilog $HASH1 $DUTS
