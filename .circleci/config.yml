@@ -17,7 +17,6 @@ defaultImageUserWDEnv: &defaultImageUserWDEnv
       RUN_CHISEL_TESTS: false
       RUN_FORMAL_CHECKS: false
       SBT_ARGS: "-Dsbt.log.noformat=true"
-      WS_ROOT: /home/chisel
 
 version: 2
 
@@ -66,7 +65,7 @@ jobs:
           key: v1-dependencies--{{ checksum "build.sbt" }}
 
       - persist_to_workspace:
-          root: $WS_ROOT
+          root: /home/chisel
           paths:
             - .m2
             - .ivy2/cache
@@ -78,7 +77,7 @@ jobs:
 
     steps:
       - attach_workspace:
-          at: $WS_ROOT
+          at: /home/chisel
 
       # Check test configuration
       - run:
