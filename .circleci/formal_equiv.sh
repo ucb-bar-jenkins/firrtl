@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # This script is for formally comparing the Verilog emitted by different git revisions
 # There must be two valid git revision arguments
-set -exv
+set -e
 
 if [ $# -lt 3 ]; then
     echo "There must be at least three arguments!"
