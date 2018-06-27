@@ -14,8 +14,8 @@ defaultImageUserWDEnv: &defaultImageUserWDEnv
       JVM_OPTS: -Xmx3200m
       TERM: dumb
       RUN_FIRRTL_TESTS: true
-      RUN_CHISEL_TESTS: false
-      RUN_FORMAL_CHECKS: false
+      RUN_CHISEL_TESTS: true
+      RUN_FORMAL_CHECKS: true
       SBT_ARGS: "-Dsbt.log.noformat=true"
 
 version: 2
