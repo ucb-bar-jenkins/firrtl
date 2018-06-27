@@ -13,7 +13,7 @@ DUTS=$@
 COMMIT_RANGE=`basename $CIRCLE_COMPARE_URL | sed -e 's/\.\.\./../'`
 
 # Run formal check only for PRs
-if [ $CIRCLE_PULL_REQUEST = "" ]; then
+if [ "$CIRCLE_PULL_REQUEST" = "" ]; then
   echo "Not a pull request, no formal check"
   exit 0
 # Skip formal tests if the commit message says to

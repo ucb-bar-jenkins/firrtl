@@ -70,6 +70,7 @@ jobs:
             - .m2
             - .ivy2/local
             - .sbt
+            - .ssh
             - repo
 
   test_firrtl:
