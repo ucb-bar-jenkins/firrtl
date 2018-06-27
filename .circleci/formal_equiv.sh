@@ -52,7 +52,7 @@ make_verilog () {
     sbt clean
     for dut in $@; do
       local filename="$dut.$HASH.v"
-      java -jar utils/bin/firrtl.$HASH.jar -i regress/$dut.fir -o $filename -X verilog"
+      java -jar utils/bin/firrtl.$HASH.jar -i regress/$dut.fir -o $filename -X verilog
     done
 }
 
