@@ -30,19 +30,10 @@ if [ $HASH1 = $HASH2 ]; then
     exit 0
 fi
 
-# The next is tricky. We want to checkout another revision,
-#  without updating the regression tests or the scripts we're executing.
-# We assume they should be provided by the revision we're trying to verify.
-cat <<EOF >> .gitignore
-scripts
-regress
-.circleci
-EOF
-
 make_firrtl () {
     local HASH=$1
     git checkout $HASH
-    sbt clean assemble
+    sbt clean assembly
     mv utils/bin/firrtl.jar utils/bin/firrtl.$HASH.jar
 }
 
