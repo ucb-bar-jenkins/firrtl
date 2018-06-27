@@ -55,7 +55,7 @@ jobs:
           # fallback to using the latest cache if no exact match is found
           - v1-dependencies-
 
-      - run: cat /dev/null | sbt $SBT_ARGS test:compile assembly publishLocal
+      - run: cat /dev/null | sbt $SBT_ARGS +test:compile +assembly +publishLocal
 
       - save_cache:
           paths:
@@ -87,7 +87,7 @@ jobs:
       - run:
           command: |
             if $RUN_FIRRTL_TESTS ; then
-              cat /dev/null | sbt $SBT_ARGS test:test
+              cat /dev/null | sbt $SBT_ARGS +test:test
             fi
 
   test_chisel:
