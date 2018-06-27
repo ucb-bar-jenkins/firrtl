@@ -33,14 +33,13 @@ fi
 make_firrtl () {
     local HASH=$1
     git checkout $HASH
-    sbt clean assembly
+    sbt $SBT_ARGS clean assembly
     mv utils/bin/firrtl.jar utils/bin/firrtl.$HASH.jar
 }
 
 make_verilog () {
     local HASH=$1
     shift
-    sbt clean
     for dut in $@; do
       local filename="$dut.$HASH.v"
       java -jar utils/bin/firrtl.$HASH.jar -i regress/$dut.fir -o $filename -X verilog
