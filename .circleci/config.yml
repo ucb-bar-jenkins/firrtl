@@ -55,7 +55,7 @@ jobs:
           # fallback to using the latest cache if no exact match is found
           - v1-dependencies-
 
-      - run: cat /dev/null | sbt $SBT_ARGS test:compile
+      - run: cat /dev/null | sbt $SBT_ARGS test:compile assembly publishLocal
 
       - save_cache:
           paths:
@@ -68,36 +68,16 @@ jobs:
           root: /home/chisel
           paths:
             - .m2
-            - .ivy2/cache
+            - .ivy2/local
             - .sbt
             - repo
 
-  test:
+  test_firrtl:
     <<: *defaultImageUserWDEnv
 
     steps:
       - attach_workspace:
           at: /home/chisel
-
-      # Check test configuration
-      - run:
-          command: |
-            printenv
-            if $RUN_FIRRTL_TESTS ; then
-              echo will run firrtl tests
-            else
-              echo will NOT run firrtl tests
-            fi
-            if $RUN_CHISEL_TESTS ; then
-              echo will run chisel tests
-            else
-              echo will NOT run chisel tests
-            fi
-            if $RUN_FORMAL_CHECKS ; then
-              echo will run formal checks
-            else
-              echo will NOT run formal checks
-            fi
 
       # Set environment
       - run: echo 'export PATH="/opt/verilator/verilator_3_922/bin:/opt/yosys/bin:$PATH"' >> $BASH_ENV
@@ -109,6 +89,16 @@ jobs:
               cat /dev/null | sbt $SBT_ARGS test:test
             fi
 
+  test_chisel:
+    <<: *defaultImageUserWDEnv
+
+    steps:
+      - attach_workspace:
+          at: /home/chisel
+
+      # Set environment
+      - run: echo 'export PATH="/opt/verilator/verilator_3_922/bin:/opt/yosys/bin:$PATH"' >> $BASH_ENV
+      
       # run regressions (chisel tests with default versions)
       - run:
           command: |
@@ -117,6 +107,16 @@ jobs:
               bash .circleci/run_chisel_tests.sh
             fi
 
+  test_regression:
+    <<: *defaultImageUserWDEnv
+
+    steps:
+      - attach_workspace:
+          at: /home/chisel
+
+      # Set environment
+      - run: echo 'export PATH="/opt/verilator/verilator_3_922/bin:/opt/yosys/bin:$PATH"' >> $BASH_ENV
+      
       # run regressions (formal tests with default versions)
       - run:
           command: |
@@ -131,6 +131,12 @@ workflows:
   build_and_test:
     jobs:
       - build
-      - test:
+      - test_firrtl:
+          requires:
+            - build
+      - test_chisel:
+          requires:
+            - build
+      - test_regression:
           requires:
             - build

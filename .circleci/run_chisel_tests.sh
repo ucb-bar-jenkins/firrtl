@@ -6,7 +6,8 @@ COMMIT_RANGE=`basename $CIRCLE_COMPARE_URL | sed -e 's/\.\.\./../'`
 if git log --format=%B --no-merges $COMMIT_RANGE | grep '\[skip chisel tests\]'; then
   exit 0
 else
-  sbt $SBT_ARGS assembly publishLocal
+  # We assume the following has been done elsewhere
+  #  sbt $SBT_ARGS assembly publishLocal
   git clone https://github.com/ucb-bar/chisel3.git
   mkdir -p chisel3/lib
   cp utils/bin/firrtl.jar chisel3/lib
