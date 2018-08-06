@@ -1,0 +1,143 @@
+# Scala CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/sample-config/ for more details
+#
+defaultImageUserWDEnv: &defaultImageUserWDEnv
+    docker:
+      - image: ucbbar/chisel3-tools
+        user: "chisel"
+    
+    working_directory: ~/repo
+
+    environment:
+      # Customize the JVM maximum heap limit
+      JVM_OPTS: -Xmx3200m
+      TERM: dumb
+      RUN_FIRRTL_TESTS: true
+      RUN_CHISEL_TESTS: true
+      RUN_FORMAL_CHECKS: true
+      SBT_ARGS: "-Dsbt.log.noformat=true"
+
+version: 2
+
+jobs:
+  build:
+    <<: *defaultImageUserWDEnv
+
+    steps:
+      # Check test configuration
+      - run:
+          command: |
+            printenv
+            if $RUN_FIRRTL_TESTS ; then
+              echo will run firrtl tests
+            else
+              echo will NOT run firrtl tests
+            fi
+            if $RUN_CHISEL_TESTS ; then
+              echo will run chisel tests
+            else
+              echo will NOT run chisel tests
+            fi
+            if $RUN_FORMAL_CHECKS ; then
+              echo will run formal checks
+            else
+              echo will NOT run formal checks
+            fi
+
+      # Download and cache dependencies            
+      - checkout
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "build.sbt" }}
+          # fallback to using the latest cache if no exact match is found
+          - v1-dependencies-
+
+      - run: cat /dev/null | sbt $SBT_ARGS +test:compile +assembly +publishLocal
+
+      - save_cache:
+          paths:
+            - ~/.m2
+            - ~/.ivy2/cache
+            - ~/.sbt
+          key: v1-dependencies--{{ checksum "build.sbt" }}
+
+      - persist_to_workspace:
+          root: /home/chisel
+          paths:
+            - .m2
+            - .ivy2/local
+            - .sbt
+            - .ssh
+            - repo
+
+  test_firrtl:
+    <<: *defaultImageUserWDEnv
+
+    steps:
+      - attach_workspace:
+          at: /home/chisel
+
+      # Set environment
+      - run: echo 'export PATH="/opt/verilator/verilator_3_922/bin:/opt/yosys/bin:$PATH"' >> $BASH_ENV
+      
+      # run tests!
+      - run:
+          command: |
+            if $RUN_FIRRTL_TESTS ; then
+              cat /dev/null | sbt $SBT_ARGS +test:test
+            fi
+
+  test_chisel:
+    <<: *defaultImageUserWDEnv
+
+    steps:
+      - attach_workspace:
+          at: /home/chisel
+
+      # Set environment
+      - run: echo 'export PATH="/opt/verilator/verilator_3_922/bin:/opt/yosys/bin:$PATH"' >> $BASH_ENV
+      
+      # run regressions (chisel tests with default versions)
+      - run:
+          command: |
+            if $RUN_CHISEL_TESTS ; then
+              verilator --version
+              bash .circleci/run_chisel_tests.sh
+            fi
+
+  test_regression:
+    <<: *defaultImageUserWDEnv
+
+    steps:
+      - attach_workspace:
+          at: /home/chisel
+
+      # Set environment
+      - run: echo 'export PATH="/opt/verilator/verilator_3_922/bin:/opt/yosys/bin:$PATH"' >> $BASH_ENV
+      
+      # run regressions (formal tests with default versions)
+      - run:
+          command: |
+            if $RUN_FORMAL_CHECKS ; then
+              yosys -V
+              bash .circleci/run_formal_checks.sh RocketCore FPU ICache
+            fi
+
+workflows:
+  version: 2
+
+  build_and_test:
+    jobs:
+      - build
+      - test_firrtl:
+          requires:
+            - build
+      - test_chisel:
+          requires:
+            - build
+      - test_regression:
+          requires:
+            - build
